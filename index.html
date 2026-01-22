@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Cleaner</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<body>
+    <div id="sidebar">
+        <div class="logo"><i class="fas fa-broom"></i> CleanWin</div>
+        <div class="menu-item active" data-view="cleaner">
+            <i class="fas fa-magic" style="margin-right: 10px;"></i> Cleaner
+        </div>
+        <div class="menu-item" data-view="registry">
+            <i class="fas fa-registered" style="margin-right: 10px;"></i> Registry
+        </div>
+        <div class="menu-item" data-view="settings">
+            <i class="fas fa-cogs" style="margin-right: 10px;"></i> Settings
+        </div>
+        <div class="menu-item" data-view="about">
+            <i class="fas fa-info-circle" style="margin-right: 10px;"></i> About
+        </div>
+    </div>
+
+    <div id="main-content">
+        <header>
+            <h1 id="page-title"><i class="fas fa-shield-alt"></i> System Cleanup</h1>
+        </header>
+
+        <!-- View 1: Configuration -->
+        <div id="scan-config-container" class="view-section active">
+            <!-- Cleaner Config -->
+            <div class="scroll-area" id="cleaner-config">
+                <div class="category-section">
+                    <h2 class="category-header"><i class="fab fa-windows"></i> Windows / System</h2>
+                    <div class="tree-view" id="tree-system"></div>
+                </div>
+                <div class="category-section">
+                    <h2 class="category-header"><i class="fas fa-cubes"></i> Applications</h2>
+                    <div class="tree-view" id="tree-applications"></div>
+                </div>
+                <div class="category-section">
+                    <h2 class="category-header"><i class="fas fa-microscope"></i> Deep Scan</h2>
+                    <div class="tree-view" id="tree-deepscan"></div>
+                </div>
+            </div>
+
+            <!-- Registry Config -->
+            <div class="scroll-area" id="registry-config" style="display: none;">
+                <div class="category-section">
+                    <h2 class="category-header"><i class="fas fa-archive"></i> Registry Cleanup</h2>
+                    <div class="tree-view" id="tree-registry"></div>
+                </div>
+            </div>
+
+            <div class="actions-bar">
+                <div class="status-text" id="config-status">Ready.</div>
+                <button id="scan-btn" class="btn-primary">Analyze PC</button>
+            </div>
+        </div>
+
+        <!-- View 2: Review -->
+        <div id="scan-review-container" class="view-section" style="display: none;">
+            <div class="review-header">
+                <h3>Scan Results</h3>
+                <div class="review-stats">
+                    Total: <span id="total-size">0 MB</span>
+                </div>
+            </div>
+
+            <div class="results-tree-container" id="results-list"></div>
+
+            <div class="actions-bar">
+                <button id="back-to-config-btn" class="btn-secondary">Back</button>
+
+                <div id="backup-container"
+                    style="display: none; align-items: center; margin-left: auto; margin-right: 15px;">
+                    <input type="checkbox" id="backup-check" checked>
+                    <label for="backup-check" style="margin-left: 5px; color: #555;">Backup Changes</label>
+                </div>
+
+                <div class="spacer" style="flex: 0;"></div>
+                <button id="clean-btn" class="btn-danger">Run Cleaner</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+
+</html>
