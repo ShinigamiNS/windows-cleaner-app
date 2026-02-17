@@ -16,8 +16,7 @@
   "build": {
     "appId": "com.mypc.windowscleaner",
     "win": {
-      "target": "nsis",
-      "icon": "build/icon.ico"
+      "target": "nsis"
     }
   }
 }

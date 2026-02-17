@@ -8,7 +8,8 @@ let currentMode = 'cleaner';
 // --- DOM Elements ---
 const views = {
     config: document.getElementById('scan-config-container'),
-    review: document.getElementById('scan-review-container')
+    review: document.getElementById('scan-review-container'),
+    services: document.getElementById('services-container')
 };
 
 const trees = {
@@ -35,6 +36,7 @@ function init() {
 
     scanBtn.addEventListener('click', runScan);
     document.getElementById('clean-btn').addEventListener('click', runClean);
+    document.getElementById('refresh-services-btn').addEventListener('click', loadServices);
     document.getElementById('back-to-config-btn').addEventListener('click', () => {
         views.review.style.display = 'none';
         views.config.style.display = 'flex';
@@ -62,8 +64,10 @@ function handleSidebarNav(view) {
     const pageTitle = document.getElementById('page-title');
 
     // Always reset to config view when switching tabs
+    // Always reset to config view when switching tabs
     views.review.style.display = 'none';
     views.config.style.display = 'flex';
+    views.services.style.display = 'none';
     currentResults = []; // Clear results when switching
 
     if (view === 'registry') {
@@ -78,6 +82,12 @@ function handleSidebarNav(view) {
         cleanerConfig.style.display = 'block';
         pageTitle.innerHTML = '<i class="fas fa-shield-alt"></i> System Cleanup';
         scanBtn.textContent = "Analyze PC";
+    } else if (view === 'services') {
+        currentMode = 'services';
+        views.config.style.display = 'none';
+        views.services.style.display = 'flex';
+        pageTitle.innerHTML = '<i class="fas fa-tools"></i> Services Manager';
+        loadServices();
     } else {
         // Settings
     }
@@ -281,5 +291,93 @@ function formatBytes(bytes) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
+
+// --- Services ---
+
+async function loadServices() {
+    const list = document.getElementById('services-list');
+    list.innerHTML = '<div style="padding:20px; text-align:center;">Loading services...</div>';
+
+    try {
+        const services = await require('electron').ipcRenderer.invoke('get-services');
+        renderServices(services);
+    } catch (e) {
+        list.innerHTML = `<div style="padding:20px; color:red;">Error loading services: ${e.message}</div>`;
+    }
+}
+
+function renderServices(services) {
+    const list = document.getElementById('services-list');
+    list.innerHTML = '';
+
+    if (!services || services.length === 0) {
+        list.innerHTML = '<div style="padding:20px; text-align:center;">No optimizable services found or an error occurred.</div>';
+        return;
+    }
+
+    services.forEach(svc => {
+        const item = document.createElement('div');
+        item.className = 'service-item';
+
+        const isRunning = svc.Status === 4; // 4 is Running in PowerShell enum usually, but let's check string if passed as string. 
+        // PowerShell JSON usually returns int for Status (1=Stopped, 4=Running) or string if we didn't force int.
+        // Let's assume the JSON output gave us the enum integer or string.
+        // Actually, 'Status' might be an object or int. 
+        // Let's rely on 'Status' being 4 (Running) or 1 (Stopped) typically.
+        // Wait, ConvertTo-Json might output the enum name if not specific.
+        // Let's handle both. 
+
+        const validStatus = (svc.Status === 4 || svc.Status === 'Running');
+        const statusClass = validStatus ? 'status-running' : 'status-stopped';
+        const statusText = validStatus ? 'Running' : 'Stopped';
+
+        // StartType: 2=Automatic, 3=Manual, 4=Disabled
+        let startType = 'Unknown';
+        if (svc.StartType === 2 || svc.StartType === 'Automatic') startType = 'Automatic';
+        if (svc.StartType === 3 || svc.StartType === 'Manual') startType = 'Manual';
+        if (svc.StartType === 4 || svc.StartType === 'Disabled') startType = 'Disabled';
+
+        item.innerHTML = `
+            <div class="service-header">
+                <span class="service-name">${svc.DisplayName} (${svc.Name})</span>
+                <span class="service-status-badge ${statusClass}">${statusText}</span>
+            </div>
+            <div class="service-description">${svc.Description || 'No description available.'}</div>
+            <div class="service-actions">
+                <span class="startup-type">Startup: <b>${startType}</b></span>
+                
+                ${startType !== 'Disabled' ? `
+                    <button class="btn-sm btn-danger" onclick="toggleService('${svc.Name}', 'Disabled')">Disable</button>
+                ` : `
+                    <button class="btn-sm btn-secondary" onclick="toggleService('${svc.Name}', 'Manual')">Set Manual</button>
+                `}
+                
+                ${startType === 'Disabled' ? `
+                     <button class="btn-sm btn-primary" onclick="toggleService('${svc.Name}', 'Automatic')">Set Auto</button>
+                ` : ''}
+            </div>
+        `;
+
+        list.appendChild(item);
+    });
+}
+
+window.toggleService = async function (name, type) {
+    if (!confirm(`Are you sure you want to set ${name} to ${type}?`)) return;
+
+    try {
+        await require('electron').ipcRenderer.invoke('set-service-startup', name, type);
+
+        // If we disabled it, we might want to stop it too
+        if (type === 'Disabled') {
+            await require('electron').ipcRenderer.invoke('stop-service', name);
+        }
+
+        // Reload list
+        loadServices();
+    } catch (e) {
+        alert('Failed to change service status: ' + e.message + '\n\nTry running the app as Administrator.');
+    }
+};
 
 init();

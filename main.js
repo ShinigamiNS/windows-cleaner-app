@@ -34,6 +34,38 @@ ipcMain.handle('scan-system', async () => {
     }
 });
 
+// Service Management Handlers
+ipcMain.handle('get-services', async () => {
+    try {
+        const { getServices } = require('./services');
+        return await getServices();
+    } catch (error) {
+        console.error('Service Fetch Error:', error);
+        return []; // Return empty array on error
+    }
+});
+
+ipcMain.handle('set-service-startup', async (event, serviceName, startupType) => {
+    try {
+        const { setServiceStatus } = require('./services');
+        return await setServiceStatus(serviceName, startupType);
+    } catch (error) {
+        console.error('Service Modify Error:', error);
+        throw error;
+    }
+});
+
+ipcMain.handle('stop-service', async (event, serviceName) => {
+    try {
+        const { stopService } = require('./services');
+        return await stopService(serviceName);
+    } catch (error) {
+        console.error('Service Stop Error:', error);
+        // Return success: false, but don't throw to avoid crashing UI logic if permission issues occur
+        return { success: false, message: error.message };
+    }
+});
+
 app.whenReady().then(() => {
     createWindow();
 

@@ -282,3 +282,72 @@ button:disabled {
     cursor: not-allowed;
     transform: none;
 }
+
+/* Service Item Styling */
+.service-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.service-item:hover {
+    background-color: #f8f9fa;
+}
+
+.service-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.service-name {
+    font-weight: bold;
+    color: #2d3436;
+    font-size: 15px;
+}
+
+.service-status-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-running {
+    background-color: #daf5e8;
+    color: #00b894;
+}
+
+.status-stopped {
+    background-color: #dfe6e9;
+    color: #636e72;
+}
+
+.service-description {
+    font-size: 13px;
+    color: #636e72;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.service-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.startup-type {
+    font-family: Consolas, monospace;
+    color: #0984e3;
+    margin-right: auto;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+}

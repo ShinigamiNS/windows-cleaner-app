@@ -18,6 +18,9 @@
         <div class="menu-item" data-view="registry">
             <i class="fas fa-registered" style="margin-right: 10px;"></i> Registry
         </div>
+        <div class="menu-item" data-view="services">
+            <i class="fas fa-tools" style="margin-right: 10px;"></i> Services
+        </div>
         <div class="menu-item" data-view="settings">
             <i class="fas fa-cogs" style="margin-right: 10px;"></i> Settings
         </div>
@@ -85,6 +88,18 @@
 
                 <div class="spacer" style="flex: 0;"></div>
                 <button id="clean-btn" class="btn-danger">Run Cleaner</button>
+            </div>
+        </div>
+
+        <!-- View 3: Services Manager -->
+        <div id="services-container" class="view-section" style="display: none;">
+            <div class="actions-bar" style="border-top: none; margin-top: 0; padding-top: 0; padding-bottom: 15px;">
+                <p style="flex: 1; color: #666;">Optimize system performance by disabling unnecessary services.</p>
+                <button id="refresh-services-btn" class="btn-secondary"><i class="fas fa-sync"></i> Refresh</button>
+            </div>
+
+            <div class="results-tree-container" id="services-list">
+                <!-- Services will be populated here -->
             </div>
         </div>
     </div>
